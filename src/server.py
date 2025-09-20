@@ -1,4 +1,4 @@
-"""Main telnet server for SAMUD - handles connections and game loop."""
+"""Main telnet server for SAMUD - handles connections and game loop using telnetlib3."""
 
 import asyncio
 import logging
@@ -6,27 +6,24 @@ import signal
 import sys
 from typing import Dict, Optional
 from datetime import datetime
+import telnetlib3
 
 from config import (
-    HOST, PORT, MAX_CONNECTIONS, BUFFER_SIZE, ENCODING,
-    TELNET_IAC, TELNET_WILL, TELNET_WONT, TELNET_DO, TELNET_DONT,
-    TELNET_ECHO, TELNET_SGA, IDLE_TIMEOUT, IDLE_WARNING_TIME
+    HOST, PORT, MAX_CONNECTIONS, ENCODING,
+    IDLE_TIMEOUT, IDLE_WARNING_TIME
 )
 from database import db
 
 logger = logging.getLogger(__name__)
 
-# Import auth after Client is defined
-auth_manager = None
-
 
 class Client:
-    """Represents a connected telnet client."""
+    """Represents a connected telnet client using telnetlib3."""
 
-    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    def __init__(self, reader: telnetlib3.TelnetReader, writer: telnetlib3.TelnetWriter):
         self.reader = reader
         self.writer = writer
-        self.address = writer.get_extra_info('peername')
+        self.address = writer.transport.get_extra_info('peername')
         self.connected_at = datetime.now()
         self.last_activity = datetime.now()
 
@@ -38,8 +35,6 @@ class Client:
 
         # Connection state
         self.is_active = True
-        self.input_buffer = ""
-        self.echo_enabled = True
 
         # Rate limiting
         self.message_times = []
@@ -48,15 +43,13 @@ class Client:
 
     async def send(self, message: str):
         """Send a message to the client."""
-        if not self.is_active or self.writer.is_closing():
+        if not self.is_active or self.writer.transport.is_closing():
             return
 
         try:
-            # Ensure message ends with newline
-            if not message.endswith('\n'):
-                message += '\n'
-
-            # Convert to bytes and send
+            # Convert message to proper line endings for telnet
+            message = message.replace('\n', '\r\n')
+            # Convert to bytes for binary mode
             self.writer.write(message.encode(ENCODING))
             await self.writer.drain()
         except (ConnectionError, BrokenPipeError):
@@ -65,92 +58,99 @@ class Client:
 
     async def send_prompt(self):
         """Send the command prompt."""
-        await self.send("\n> ")
+        self.writer.write(b"\r\n> ")
+        await self.writer.drain()
 
     async def readline(self, echo=True) -> Optional[str]:
-        """Read a line of input from the client - character by character for telnet compatibility.
+        """Read a line of input from the client with proper backspace handling.
 
         Args:
             echo: Whether to echo characters back to the client (False for password input)
         """
         try:
+            # Update activity time
+            self.last_activity = datetime.now()
+
+            # Tell the client we will handle echo (suppress local echo)
+            self.writer.iac(telnetlib3.WILL, telnetlib3.ECHO)
+            await self.writer.drain()
+
+            # Read character by character to handle backspace properly
             line_buffer = []
 
-            # For password input, suppress client echo
-            if not echo:
-                await self.send_raw(TELNET_IAC + TELNET_WILL + TELNET_ECHO)
-
             while True:
-                # Read one byte at a time
-                data = await asyncio.wait_for(
-                    self.reader.read(1),
-                    timeout=IDLE_TIMEOUT
-                )
-
-                if not data:
+                # telnetlib3 reader provides readexactly for raw bytes
+                try:
+                    char = await asyncio.wait_for(
+                        self.reader.readexactly(1),
+                        timeout=IDLE_TIMEOUT
+                    )
+                except asyncio.IncompleteReadError:
+                    # Connection closed
                     return None
 
-                # Update activity time
-                self.last_activity = datetime.now()
-
-                byte = data[0]
+                if not char:
+                    return None
 
                 # Handle telnet IAC sequences
-                if byte == 255:  # IAC
-                    # Read next byte for command
-                    cmd_data = await self.reader.read(1)
-                    if cmd_data:
-                        cmd = cmd_data[0]
-                        # If it's WILL/WONT/DO/DONT, read the option byte
-                        if cmd in [251, 252, 253, 254]:
-                            await self.reader.read(1)
+                if char == bytes([255]):  # IAC
+                    # Read command byte
+                    try:
+                        cmd = await self.reader.readexactly(1)
+                        # If it's WILL/WONT/DO/DONT, read option byte
+                        if cmd[0] in [251, 252, 253, 254]:
+                            await self.reader.readexactly(1)
+                    except:
+                        pass
                     continue
 
-                # Handle carriage return or line feed - end of line
-                if byte in [10, 13]:  # LF or CR
-                    # Try to consume CR+LF or LF+CR pairs
+                # Check for newline (Enter key)
+                if char in (b'\r', b'\n'):
+                    # Consume any following CR/LF
                     try:
-                        next_byte = await asyncio.wait_for(
-                            self.reader.read(1),
+                        next_char = await asyncio.wait_for(
+                            self.reader.readexactly(1),
                             timeout=0.01
                         )
-                        # Only consume if it's the paired line ending
-                        if not (next_byte and next_byte[0] in [10, 13] and next_byte[0] != byte):
-                            # Not a pair, this is real data - handle it differently
-                            # For now, just ignore since most telnet sends CR or CR+LF
-                            pass
-                    except asyncio.TimeoutError:
-                        pass  # No paired byte, that's fine
+                        # If it's not a paired line ending, we've consumed it
+                        # but that's okay for line endings
+                    except (asyncio.TimeoutError, asyncio.IncompleteReadError):
+                        pass
 
-                    # Don't echo newline - client handles it
-
-                    # Restore client echo after password input
-                    if not echo:
-                        await self.send_raw(TELNET_IAC + TELNET_WONT + TELNET_ECHO)
-
-                    # Return the completed line
-                    result = ''.join(line_buffer).strip()
-                    return result
+                    # Send newline to client
+                    self.writer.write(b'\r\n')
+                    await self.writer.drain()
+                    break
 
                 # Handle backspace
-                elif byte in [8, 127]:  # BS or DEL
+                if char in (b'\x08', b'\x7f'):  # BS or DEL
                     if line_buffer:
                         line_buffer.pop()
-                        # Only send backspace sequence for password mode (when we control echo)
-                        if not echo:
-                            await self.send_raw(b'\x08 \x08')
+                        # Send backspace sequence to erase the character
+                        self.writer.write(b'\b \b')
+                        await self.writer.drain()
+                # Handle regular printable characters
+                elif 32 <= char[0] <= 126:
+                    char_str = chr(char[0])
+                    line_buffer.append(char_str)
 
-                # Handle printable ASCII
-                elif 32 <= byte <= 126:
-                    char = chr(byte)
-                    line_buffer.append(char)
-                    # Only echo for password mode (when we control echo)
-                    if not echo:
-                        await self.send_raw(b'*')
-
+                    if echo:
+                        # Echo the character back
+                        self.writer.write(char)  # char is already bytes
+                        await self.writer.drain()
+                    else:
+                        # Echo an asterisk for password
+                        self.writer.write(b'*')
+                        await self.writer.drain()
                 # Ignore other control characters
                 else:
                     continue
+
+            # Tell client to resume local echo
+            self.writer.iac(telnetlib3.WONT, telnetlib3.ECHO)
+            await self.writer.drain()
+
+            return ''.join(line_buffer).strip()
 
         except asyncio.TimeoutError:
             logger.info(f"Client {self.address} timed out")
@@ -158,48 +158,6 @@ class Client:
         except Exception as e:
             logger.debug(f"Read error: {e}")
             return None
-
-    def filter_telnet_commands(self, data: str) -> str:
-        """Remove telnet IAC command sequences."""
-        filtered = []
-        i = 0
-
-        while i < len(data):
-            if i < len(data):
-                char_code = ord(data[i])
-
-                # IAC (255) followed by command
-                if char_code == 255 and i + 1 < len(data):
-                    next_code = ord(data[i + 1])
-                    # Command with parameter (WILL/WONT/DO/DONT)
-                    if next_code in [251, 252, 253, 254] and i + 2 < len(data):
-                        i += 3  # Skip IAC, command, and parameter
-                    # Two-byte command
-                    else:
-                        i += 2  # Skip IAC and command
-                # Regular character
-                else:
-                    filtered.append(data[i])
-                    i += 1
-
-        return ''.join(filtered)
-
-    async def setup_telnet(self):
-        """Send initial telnet configuration."""
-        # Suppress Go Ahead for better responsiveness
-        await self.send_raw(TELNET_IAC + TELNET_WILL + TELNET_SGA)
-        # Don't send WILL ECHO initially - let client echo locally by default
-
-    async def send_raw(self, data: bytes):
-        """Send raw bytes to client."""
-        if not self.is_active or self.writer.is_closing():
-            return
-
-        try:
-            self.writer.write(data)
-            await self.writer.drain()
-        except:
-            self.is_active = False
 
     async def disconnect(self):
         """Clean disconnect of client."""
@@ -210,7 +168,6 @@ class Client:
                 await db.end_session(self.player_id)
 
             self.writer.close()
-            await self.writer.wait_closed()
         except:
             pass
 
@@ -223,7 +180,6 @@ class MudServer:
     def __init__(self):
         self.clients: Dict[asyncio.Task, Client] = {}
         self.active_players: Dict[int, Client] = {}  # player_id -> Client
-        self.server = None
         self.running = False
 
     async def start_server(self):
@@ -232,33 +188,33 @@ class MudServer:
         logger.info("Initializing database...")
         await db.init_database()
 
-        # Start server
-        self.server = await asyncio.start_server(
-            self.handle_client,
-            HOST,
-            PORT,
-            limit=BUFFER_SIZE
-        )
-
+        # Start telnetlib3 server
         self.running = True
-        addr = self.server.sockets[0].getsockname()
-        logger.info(f"SAMUD server running on {addr[0]}:{addr[1]}")
-        logger.info(f"Connect with: telnet {addr[0]} {addr[1]}")
+
+        logger.info(f"SAMUD server starting on {HOST}:{PORT}")
+        logger.info(f"Connect with: telnet {HOST} {PORT}")
 
         # Setup signal handlers
+        loop = asyncio.get_event_loop()
         for sig in (signal.SIGTERM, signal.SIGINT):
-            signal.signal(sig, self._signal_handler)
+            loop.add_signal_handler(sig, lambda: asyncio.create_task(self.shutdown()))
 
         # Start background tasks
         asyncio.create_task(self.idle_check_task())
 
-        async with self.server:
-            await self.server.serve_forever()
+        # Create and run the telnetlib3 server with proper settings
+        await telnetlib3.create_server(
+            host=HOST,
+            port=PORT,
+            shell=self.handle_client_shell,
+            encoding=False,  # Use binary mode for full control
+            connect_maxwait=0.5,  # Reduce connection negotiation wait time
+            limit=65536  # Increase buffer limit for better performance
+        )
 
-    def _signal_handler(self, signum, frame):
-        """Handle shutdown signals."""
-        logger.info(f"Received signal {signum}, shutting down...")
-        asyncio.create_task(self.shutdown())
+        # Keep the server running
+        while self.running:
+            await asyncio.sleep(1)
 
     async def shutdown(self):
         """Graceful shutdown of the server."""
@@ -269,28 +225,30 @@ class MudServer:
             await client.send("\n[System] Server is shutting down. Goodbye!\n")
             await client.disconnect()
 
-        # Close server
-        if self.server:
-            self.server.close()
-            await self.server.wait_closed()
-
         logger.info("Server shutdown complete")
         sys.exit(0)
 
-    async def handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        """Handle a new client connection."""
+    async def handle_client_shell(self, reader: telnetlib3.TelnetReader, writer: telnetlib3.TelnetWriter):
+        """Handle a new client connection - this is the shell function for telnetlib3.
+
+        Args:
+            reader: telnetlib3 TelnetReader for receiving data
+            writer: telnetlib3 TelnetWriter for sending data
+        """
         client = Client(reader, writer)
         task = asyncio.current_task()
         self.clients[task] = client
 
         try:
+            # Set up initial telnet options
+            # Tell the client we support SGA for better responsiveness
+            writer.iac(telnetlib3.WILL, telnetlib3.SGA)
+            await writer.drain()
+
             # Check connection limit
             if len(self.clients) > MAX_CONNECTIONS:
                 await client.send("Server is full. Please try again later.\n")
                 return
-
-            # Setup telnet
-            await client.setup_telnet()
 
             # Send welcome message
             await self.send_welcome(client)
@@ -327,7 +285,7 @@ class MudServer:
                     await command_processor.process_command(client, line)
 
         except Exception as e:
-            logger.error(f"Error handling client {client.address}: {e}")
+            logger.error(f"Error handling client {client.address}: {e}", exc_info=True)
 
         finally:
             # Clean up player if authenticated
