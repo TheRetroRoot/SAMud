@@ -67,10 +67,18 @@ class Client:
         """Send the command prompt."""
         await self.send("\n> ")
 
-    async def readline(self) -> Optional[str]:
-        """Read a line of input from the client - character by character for telnet compatibility."""
+    async def readline(self, echo=True) -> Optional[str]:
+        """Read a line of input from the client - character by character for telnet compatibility.
+
+        Args:
+            echo: Whether to echo characters back to the client (False for password input)
+        """
         try:
             line_buffer = []
+
+            # For password input, suppress client echo
+            if not echo:
+                await self.send_raw(TELNET_IAC + TELNET_WILL + TELNET_ECHO)
 
             while True:
                 # Read one byte at a time
@@ -114,6 +122,12 @@ class Client:
                     except asyncio.TimeoutError:
                         pass  # No paired byte, that's fine
 
+                    # Don't echo newline - client handles it
+
+                    # Restore client echo after password input
+                    if not echo:
+                        await self.send_raw(TELNET_IAC + TELNET_WONT + TELNET_ECHO)
+
                     # Return the completed line
                     result = ''.join(line_buffer).strip()
                     return result
@@ -122,13 +136,17 @@ class Client:
                 elif byte in [8, 127]:  # BS or DEL
                     if line_buffer:
                         line_buffer.pop()
-                        # Don't echo - telnet client handles it
+                        # Only send backspace sequence for password mode (when we control echo)
+                        if not echo:
+                            await self.send_raw(b'\x08 \x08')
 
                 # Handle printable ASCII
                 elif 32 <= byte <= 126:
                     char = chr(byte)
                     line_buffer.append(char)
-                    # Don't echo - telnet client handles it
+                    # Only echo for password mode (when we control echo)
+                    if not echo:
+                        await self.send_raw(b'*')
 
                 # Ignore other control characters
                 else:
@@ -168,10 +186,9 @@ class Client:
 
     async def setup_telnet(self):
         """Send initial telnet configuration."""
-        # Suppress Go Ahead
+        # Suppress Go Ahead for better responsiveness
         await self.send_raw(TELNET_IAC + TELNET_WILL + TELNET_SGA)
-        # Don't echo - let client handle it for normal operation
-        await self.send_raw(TELNET_IAC + TELNET_WONT + TELNET_ECHO)
+        # Don't send WILL ECHO initially - let client echo locally by default
 
     async def send_raw(self, data: bytes):
         """Send raw bytes to client."""
@@ -328,17 +345,17 @@ class MudServer:
     async def send_welcome(self, client: Client):
         """Send welcome message to new connection."""
         welcome = """
-╔════════════════════════════════════════════════════════════════╗
-║           Welcome to the San Antonio MUD (SAMUD)              ║
-║                                                                ║
-║   Experience the Alamo City through text-based adventure!     ║
-║                                                                ║
-║   Commands:                                                   ║
-║   • 'login' - Log in to existing account                      ║
-║   • 'signup' - Create a new account                           ║
-║   • 'help' - Show available commands                          ║
-║   • 'quit' - Disconnect from the server                       ║
-╚════════════════════════════════════════════════════════════════╝
+================================================================
+           Welcome to the San Antonio MUD (SAMUD)
+
+   Experience the Alamo City through text-based adventure!
+
+   Commands:
+   * 'login' - Log in to existing account
+   * 'signup' - Create a new account
+   * 'help' - Show available commands
+   * 'quit' - Disconnect from the server
+================================================================
 
 Type 'login' or 'signup' to begin your adventure!
 """

@@ -127,7 +127,7 @@ class AuthManager:
         # Get password
         for attempt in range(max_attempts):
             await client.send("Choose a password: ")
-            password = await client.readline()
+            password = await client.readline(echo=False)
 
             if not password:
                 await client.send("Signup cancelled.\n")
@@ -141,7 +141,7 @@ class AuthManager:
 
             # Confirm password
             await client.send("Confirm password: ")
-            confirm = await client.readline()
+            confirm = await client.readline(echo=False)
 
             if password != confirm:
                 await client.send("Passwords do not match. Please try again.\n")
@@ -185,7 +185,7 @@ class AuthManager:
 
         # Get password
         await client.send("Password: ")
-        password = await client.readline()
+        password = await client.readline(echo=False)
 
         if not password:
             await client.send("Login cancelled.\n")
