@@ -14,6 +14,7 @@ class Room:
     id: str
     name: str
     description: str
+    ascii_art: str = ""  # ASCII art for the room
     exits: Dict[str, str] = field(default_factory=dict)  # direction -> room_id
     players: Set[int] = field(default_factory=set)  # Set of player IDs in room
 
@@ -54,49 +55,148 @@ class World:
                 id='alamo_plaza',
                 name='The Alamo Plaza',
                 description='Stone walls surround you. Tourists move in and out of the historic courtyard. '
-                           'The limestone facade of the mission stands proud against the Texas sky.'
+                           'The limestone facade of the mission stands proud against the Texas sky.',
+                ascii_art="""
+       _____
+      /     \\
+     /  ___  \\
+    |  |   |  |      THE ALAMO
+    |  | † |  |    Remember 1836
+    |__|___|__|   _______________
+       | | |     |_______________|
+     __| | |__   |_______________|
+    |_________|  |_______________|
+    ||  ___  ||  |_______________|
+    || |___| ||  |_______________|
+    ||_______||  |_______________|
+"""
             ),
 
             'river_walk_north': Room(
                 id='river_walk_north',
                 name='River Walk North',
                 description='The water glistens as colorful barges float past. Cafes line both banks. '
-                           'The sound of mariachi music drifts from a nearby restaurant.'
+                           'The sound of mariachi music drifts from a nearby restaurant.',
+                ascii_art="""
+    🌴                              🌴
+   __|__    ☕ Cafe Rio    _____   __|__
+  |     |__________________|     |_|     |
+  |_____|~~~~~~~~~~~~~~~~~|______|_|_____|
+     ~~~~~~~~🚣~~~~~~~~~~~~~🌊~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   ~~~~~~~~~ San Antonio River ~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  |‾‾‾‾‾|__________________|‾‾‾‾‾|‾|‾‾‾‾‾|
+  |_____|   🍹 Cantina     |_____|_|_____|
+    ||                              ||
+"""
             ),
 
             'river_walk_south': Room(
                 id='river_walk_south',
                 name='River Walk South',
                 description='Music drifts from restaurants. Cypress trees shade the walkway. '
-                           'Stone bridges arch gracefully over the San Antonio River.'
+                           'Stone bridges arch gracefully over the San Antonio River.',
+                ascii_art="""
+         _____..._____
+       _/             \\_     Stone Bridge
+      /                 \\
+  ___/___________________\\___
+  ‾‾‾\\‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾//‾‾‾
+    ~~~~~~~~~~~~~~~~~~~~~
+   ~~🦆~~~~ River ~~~~🦆~~
+    ~~~~~~~~~~~~~~~~~~~~~
+  🌳 |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾| 🌳
+     | Cypress Walkway  |
+     |__________________|
+"""
             ),
 
             'pearl': Room(
                 id='pearl',
                 name='The Pearl',
                 description='The old brewery buzzes with activity. Food trucks and shops fill the plaza. '
-                           'The weekend farmers market brings locals and visitors together.'
+                           'The weekend farmers market brings locals and visitors together.',
+                ascii_art="""
+     _____|PEARL|_____
+    |   ___BREWERY___ |
+    |  |  _______  |  |
+    |  | |       | |  |    🚚 Food Trucks
+    |  | | SHOPS | |  |    🌮 🍔 🍕
+    |  |_|_______|_|  |
+    |_________________|
+    | 🏪 | 🏪 | 🏪 |
+    |_____|_____|_____|
+      Farmers Market
+     🥬 🍅 🌽 🥕 🍎
+"""
             ),
 
             'tower': Room(
                 id='tower',
                 name='Tower of the Americas',
                 description='The needle pierces the sky at 750 feet. The city spreads out below. '
-                           'You can see for miles in every direction from this vantage point.'
+                           'You can see for miles in every direction from this vantage point.',
+                ascii_art="""
+           ☁️
+           |
+          _|_      750 ft
+         |   |     ☁️
+         |◉◉◉|    Observation Deck
+         |___|
+           |
+           |      ☁️
+           |
+           |
+          /|\\
+         / | \\
+        /  |  \\
+       /   |   \\
+      /____|____\\
+     |___base___|
+"""
             ),
 
             'mission': Room(
                 id='mission',
                 name='Mission San Jose',
                 description='The limestone church stands serene. The rose window catches the light. '
-                           'The Queen of Missions showcases Spanish colonial architecture.'
+                           'The Queen of Missions showcases Spanish colonial architecture.',
+                ascii_art="""
+         ___†___
+        /       \\
+       /  _◉_   \\    Rose Window
+      |  |   |   |
+      |  |___|   |    Mission San Jose
+      |   ___    |    "Queen of Missions"
+      |  |   |   |
+    __|__|   |___|__
+   |  ___     ___  |
+   | |   |   |   | |
+   |_|___|___|___|_|
+         [===]       Spanish Colonial
+"""
             ),
 
             'southtown': Room(
                 id='southtown',
                 name='Southtown',
                 description='Art galleries and vintage shops line the street. Murals cover the walls. '
-                           'The King William district showcases historic homes and trendy eateries.'
+                           'The King William district showcases historic homes and trendy eateries.',
+                ascii_art="""
+   🎨 ART DISTRICT 🎨
+  |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+  | 🖼️ Gallery Row   |
+  |___________________|
+  | M U R A L   W A L L |
+  |~~~~~~~~~~~~~~~~~~~~~|
+  | 🎭 🎨 🖌️ 🎪 🎭 |
+  |_____________________|
+  | Vintage | Coffee ☕ |
+  |_________|___________|
+    King William Historic
+         🏛️ 🏛️ 🏛️
+"""
             )
         }
 

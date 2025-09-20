@@ -244,6 +244,8 @@ class AuthManager:
         room = world.get_room(player.current_room_id)
         if room:
             await client.send(f"\nYou appear at {room.name}.\n")
+            if room.ascii_art:
+                await client.send(f"{room.ascii_art}\n")
             await client.send(f"{room.description}\n")
             await client.send(f"Exits: {room.get_exit_list()}\n")
 

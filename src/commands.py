@@ -147,8 +147,10 @@ class CommandProcessor:
             await client.send("You are in a void. Something went wrong!\n")
             return
 
-        # Send room information
+        # Send room information with ASCII art
         await client.send(f"\n{room.name}\n")
+        if room.ascii_art:
+            await client.send(f"{room.ascii_art}\n")
         await client.send(f"{room.description}\n")
         await client.send(f"Exits: {room.get_exit_list()}\n")
 
@@ -218,8 +220,10 @@ class CommandProcessor:
         # Move player
         await player.move_to_room(dest_room_id, direction)
 
-        # Show new room
+        # Show new room with ASCII art
         await client.send(f"\n{dest_room.name}\n")
+        if dest_room.ascii_art:
+            await client.send(f"{dest_room.ascii_art}\n")
         await client.send(f"{dest_room.description}\n")
         await client.send(f"Exits: {dest_room.get_exit_list()}\n")
 
