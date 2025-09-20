@@ -5,7 +5,7 @@ import asyncio
 from datetime import datetime
 from typing import Optional, Dict, List, TYPE_CHECKING
 
-from config import DEFAULT_ROOM, MESSAGE_RATE_LIMIT, MESSAGE_RATE_WINDOW
+from config import MESSAGE_RATE_LIMIT, MESSAGE_RATE_WINDOW
 from database import db
 from world import world
 
@@ -22,7 +22,7 @@ class Player:
         self.id = player_id
         self.username = username
         self.client = client
-        self.current_room_id = DEFAULT_ROOM
+        self.current_room_id = world.starting_room
         self.last_activity = datetime.now()
 
         # Rate limiting for messages

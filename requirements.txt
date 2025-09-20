@@ -3,6 +3,7 @@ aiosqlite==0.20.0      # Async SQLite database interface
 bcrypt==4.2.0          # Password hashing
 python-dotenv==1.0.1   # Environment variable management
 telnetlib3==2.0.4      # Async telnet server/client library
+PyYAML==6.0.2          # YAML parsing for room definitions
 
 # Development dependencies
 pytest==8.3.3          # Testing framework

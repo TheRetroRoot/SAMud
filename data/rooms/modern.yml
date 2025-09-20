@@ -1,0 +1,33 @@
+# Modern San Antonio locations
+zone:
+  id: modern
+  name: Modern San Antonio
+  description: Contemporary attractions and neighborhoods
+
+rooms:
+  pearl:
+    name: The Pearl
+    description: >
+      The old brewery buzzes with activity. Food trucks and shops fill the plaza.
+      The weekend farmers market brings locals and visitors together.
+    ascii_art_file: pearl.txt
+    exits:
+      south: river_walk_north
+
+  tower:
+    name: Tower of the Americas
+    description: >
+      The needle pierces the sky at 750 feet. The city spreads out below.
+      You can see for miles in every direction from this vantage point.
+    ascii_art_file: tower.txt
+    exits:
+      west: river_walk_south
+
+  southtown:
+    name: Southtown
+    description: >
+      Art galleries and vintage shops line the street. Murals cover the walls.
+      The King William district showcases historic homes and trendy eateries.
+    ascii_art_file: southtown.txt
+    exits:
+      east: river_walk_south

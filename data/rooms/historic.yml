@@ -1,0 +1,25 @@
+# Historic San Antonio locations
+zone:
+  id: historic
+  name: Historic San Antonio
+  description: The heart of San Antonio's history
+
+rooms:
+  alamo_plaza:
+    name: The Alamo Plaza
+    description: >
+      Stone walls surround you. Tourists move in and out of the historic courtyard.
+      The limestone facade of the mission stands proud against the Texas sky.
+    ascii_art_file: alamo_plaza.txt
+    exits:
+      east: river_walk_north
+      south: mission
+
+  mission:
+    name: Mission San Jose
+    description: >
+      The limestone church stands serene. The rose window catches the light.
+      The Queen of Missions showcases Spanish colonial architecture.
+    ascii_art_file: mission.txt
+    exits:
+      north: alamo_plaza

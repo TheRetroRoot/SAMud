@@ -8,7 +8,7 @@ from typing import Optional, TYPE_CHECKING
 
 from config import (
     MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH,
-    MIN_PASSWORD_LENGTH, DEFAULT_ROOM
+    MIN_PASSWORD_LENGTH
 )
 from database import db
 

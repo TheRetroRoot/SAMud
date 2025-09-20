@@ -1,0 +1,28 @@
+# River Walk locations
+zone:
+  id: riverwalk
+  name: San Antonio River Walk
+  description: The famous River Walk winding through downtown
+
+rooms:
+  river_walk_north:
+    name: River Walk North
+    description: >
+      The water glistens as colorful barges float past. Cafes line both banks.
+      The sound of mariachi music drifts from a nearby restaurant.
+    ascii_art_file: river_walk_north.txt
+    exits:
+      west: alamo_plaza
+      south: river_walk_south
+      north: pearl
+
+  river_walk_south:
+    name: River Walk South
+    description: >
+      Music drifts from restaurants. Cypress trees shade the walkway.
+      Stone bridges arch gracefully over the San Antonio River.
+    ascii_art_file: river_walk_south.txt
+    exits:
+      north: river_walk_north
+      east: tower
+      west: southtown

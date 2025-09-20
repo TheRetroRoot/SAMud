@@ -368,6 +368,29 @@ class CommandProcessor:
         await client.send("Goodbye! Come back soon!\n")
         client.is_active = False
 
+    async def cmd_reload(self, client: 'Client', args: str):
+        """Reload room definitions from YAML files (development command)."""
+        # This is a development/admin command
+        # In production, you might want to check for admin privileges here
+
+        await client.send("Reloading room definitions from YAML files...\n")
+
+        if world.reload_rooms():
+            await client.send("Rooms successfully reloaded!\n")
+
+            # Show current room again to confirm it still exists
+            player = player_manager.get_player(client.player_id)
+            if player:
+                room = world.get_room(player.current_room_id)
+                if room:
+                    await client.send(f"You are still in: {room.name}\n")
+                else:
+                    # Move player to starting room if their room no longer exists
+                    player.current_room_id = world.starting_room
+                    await client.send(f"Your previous location no longer exists. Moving to {world.starting_room}.\n")
+        else:
+            await client.send("Failed to reload rooms. Check server logs for details.\n")
+
 
 # Global command processor instance
 command_processor = CommandProcessor()

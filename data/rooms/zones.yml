@@ -1,0 +1,26 @@
+# Zone metadata and loading configuration
+zones:
+  - id: historic
+    name: Historic San Antonio
+    file: historic.yml
+    enabled: true
+    load_order: 1
+
+  - id: riverwalk
+    name: San Antonio River Walk
+    file: riverwalk.yml
+    enabled: true
+    load_order: 2
+
+  - id: modern
+    name: Modern San Antonio
+    file: modern.yml
+    enabled: true
+    load_order: 3
+
+# Global room settings
+settings:
+  starting_room: alamo_plaza
+  default_description: "You find yourself in an undefined space."
+  validate_connections: true
+  allow_dynamic_loading: false

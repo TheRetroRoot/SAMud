@@ -1,6 +1,7 @@
 """World module for SAMUD - defines rooms and the game world structure."""
 
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional, Set
 from dataclasses import dataclass, field
 
@@ -43,235 +44,40 @@ class World:
     """Manages the game world and room connections."""
 
     def __init__(self):
+        """Initialize the world from YAML files."""
         self.rooms: Dict[str, Room] = {}
-        self._initialize_world()
+        self.starting_room: str = 'alamo_plaza'  # Default
+        self._load_from_yaml()
 
-    def _initialize_world(self):
-        """Create all rooms and their connections."""
+    def _load_from_yaml(self):
+        """Load rooms from YAML files."""
+        try:
+            from room_loader import RoomLoader
 
-        # Create rooms with descriptions
-        self.rooms = {
-            'alamo_plaza': Room(
-                id='alamo_plaza',
-                name='The Alamo Plaza',
-                description='Stone walls surround you. Tourists move in and out of the historic courtyard. '
-                           'The limestone facade of the mission stands proud against the Texas sky.',
-                ascii_art="""
-       _____
-      /     \\
-     /  ___  \\
-    |  |   |  |      THE ALAMO
-    |  | † |  |    Remember 1836
-    |__|___|__|   _______________
-       | | |     |_______________|
-     __| | |__   |_______________|
-    |_________|  |_______________|
-    ||  ___  ||  |_______________|
-    || |___| ||  |_______________|
-    ||_______||  |_______________|
-"""
-            ),
+            # Check if data directory exists
+            data_dir = Path("data/rooms")
+            if not data_dir.exists():
+                raise RuntimeError(f"Room data directory not found: {data_dir}")
 
-            'river_walk_north': Room(
-                id='river_walk_north',
-                name='River Walk North',
-                description='The water glistens as colorful barges float past. Cafes line both banks. '
-                           'The sound of mariachi music drifts from a nearby restaurant.',
-                ascii_art="""
-    🌴                              🌴
-   __|__    ☕ Cafe Rio    _____   __|__
-  |     |__________________|     |_|     |
-  |_____|~~~~~~~~~~~~~~~~~|______|_|_____|
-     ~~~~~~~~🚣~~~~~~~~~~~~~🌊~~~~~~~~~
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   ~~~~~~~~~ San Antonio River ~~~~~~~~~~
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  |‾‾‾‾‾|__________________|‾‾‾‾‾|‾|‾‾‾‾‾|
-  |_____|   🍹 Cantina     |_____|_|_____|
-    ||                              ||
-"""
-            ),
+            # Load rooms from YAML
+            loader = RoomLoader(str(data_dir))
+            self.rooms = loader.load_all_rooms()
 
-            'river_walk_south': Room(
-                id='river_walk_south',
-                name='River Walk South',
-                description='Music drifts from restaurants. Cypress trees shade the walkway. '
-                           'Stone bridges arch gracefully over the San Antonio River.',
-                ascii_art="""
-         _____..._____
-       _/             \\_     Stone Bridge
-      /                 \\
-  ___/___________________\\___
-  ‾‾‾\\‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾//‾‾‾
-    ~~~~~~~~~~~~~~~~~~~~~
-   ~~🦆~~~~ River ~~~~🦆~~
-    ~~~~~~~~~~~~~~~~~~~~~
-  🌳 |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾| 🌳
-     | Cypress Walkway  |
-     |__________________|
-"""
-            ),
+            if not self.rooms:
+                raise RuntimeError("No rooms loaded from YAML files. Check your room definitions in data/rooms/")
 
-            'pearl': Room(
-                id='pearl',
-                name='The Pearl',
-                description='The old brewery buzzes with activity. Food trucks and shops fill the plaza. '
-                           'The weekend farmers market brings locals and visitors together.',
-                ascii_art="""
-     _____|PEARL|_____
-    |   ___BREWERY___ |
-    |  |  _______  |  |
-    |  | |       | |  |    🚚 Food Trucks
-    |  | | SHOPS | |  |    🌮 🍔 🍕
-    |  |_|_______|_|  |
-    |_________________|
-    | 🏪 | 🏪 | 🏪 |
-    |_____|_____|_____|
-      Farmers Market
-     🥬 🍅 🌽 🥕 🍎
-"""
-            ),
+            # Get the starting room from the loader
+            self.starting_room = loader.starting_room
+            logger.info(f"Successfully loaded {len(self.rooms)} rooms from YAML")
+            logger.info(f"Starting room: {self.starting_room}")
 
-            'tower': Room(
-                id='tower',
-                name='Tower of the Americas',
-                description='The needle pierces the sky at 750 feet. The city spreads out below. '
-                           'You can see for miles in every direction from this vantage point.',
-                ascii_art="""
-           ☁️
-           |
-          _|_      750 ft
-         |   |     ☁️
-         |◉◉◉|    Observation Deck
-         |___|
-           |
-           |      ☁️
-           |
-           |
-          /|\\
-         / | \\
-        /  |  \\
-       /   |   \\
-      /____|____\\
-     |___base___|
-"""
-            ),
+        except ImportError as e:
+            raise RuntimeError(f"Could not import room_loader: {e}. Make sure PyYAML is installed.")
+        except Exception as e:
+            logger.error(f"Error loading rooms from YAML: {e}")
+            raise RuntimeError(f"Failed to load rooms: {e}")
 
-            'mission': Room(
-                id='mission',
-                name='Mission San Jose',
-                description='The limestone church stands serene. The rose window catches the light. '
-                           'The Queen of Missions showcases Spanish colonial architecture.',
-                ascii_art="""
-         ___†___
-        /       \\
-       /  _◉_   \\    Rose Window
-      |  |   |   |
-      |  |___|   |    Mission San Jose
-      |   ___    |    "Queen of Missions"
-      |  |   |   |
-    __|__|   |___|__
-   |  ___     ___  |
-   | |   |   |   | |
-   |_|___|___|___|_|
-         [===]       Spanish Colonial
-"""
-            ),
 
-            'southtown': Room(
-                id='southtown',
-                name='Southtown',
-                description='Art galleries and vintage shops line the street. Murals cover the walls. '
-                           'The King William district showcases historic homes and trendy eateries.',
-                ascii_art="""
-   🎨 ART DISTRICT 🎨
-  |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
-  | 🖼️ Gallery Row   |
-  |___________________|
-  | M U R A L   W A L L |
-  |~~~~~~~~~~~~~~~~~~~~~|
-  | 🎭 🎨 🖌️ 🎪 🎭 |
-  |_____________________|
-  | Vintage | Coffee ☕ |
-  |_________|___________|
-    King William Historic
-         🏛️ 🏛️ 🏛️
-"""
-            )
-        }
-
-        # Define connections (bidirectional)
-        self._connect_rooms('alamo_plaza', 'east', 'river_walk_north')
-        self._connect_rooms('alamo_plaza', 'south', 'mission')
-        self._connect_rooms('river_walk_north', 'south', 'river_walk_south')
-        self._connect_rooms('river_walk_north', 'north', 'pearl')
-        self._connect_rooms('river_walk_south', 'east', 'tower')
-        self._connect_rooms('river_walk_south', 'west', 'southtown')
-
-        logger.info(f"World initialized with {len(self.rooms)} rooms")
-        self._validate_connections()
-
-    def _connect_rooms(self, room1_id: str, direction: str, room2_id: str):
-        """Create a bidirectional connection between two rooms."""
-        opposite_directions = {
-            'north': 'south',
-            'south': 'north',
-            'east': 'west',
-            'west': 'east',
-            'up': 'down',
-            'down': 'up'
-        }
-
-        if room1_id in self.rooms and room2_id in self.rooms:
-            # Connect room1 to room2
-            self.rooms[room1_id].exits[direction] = room2_id
-
-            # Connect room2 to room1 (opposite direction)
-            opposite = opposite_directions.get(direction)
-            if opposite:
-                self.rooms[room2_id].exits[opposite] = room1_id
-
-            logger.debug(f"Connected {room1_id} ({direction}) <-> {room2_id} ({opposite})")
-
-    def _validate_connections(self):
-        """Validate that all rooms are reachable and connections are bidirectional."""
-        # Check all rooms are reachable from starting room
-        visited = set()
-        to_visit = ['alamo_plaza']
-
-        while to_visit:
-            room_id = to_visit.pop(0)
-            if room_id in visited:
-                continue
-
-            visited.add(room_id)
-            room = self.rooms[room_id]
-
-            for exit_room_id in room.exits.values():
-                if exit_room_id not in visited:
-                    to_visit.append(exit_room_id)
-
-        unreachable = set(self.rooms.keys()) - visited
-        if unreachable:
-            logger.warning(f"Unreachable rooms detected: {unreachable}")
-
-        # Validate bidirectional connections
-        for room_id, room in self.rooms.items():
-            for direction, target_id in room.exits.items():
-                if target_id not in self.rooms:
-                    logger.error(f"Room {room_id} has exit to non-existent room {target_id}")
-                    continue
-
-                target_room = self.rooms[target_id]
-                # Check if target has a connection back
-                has_return = any(
-                    back_id == room_id
-                    for back_id in target_room.exits.values()
-                )
-                if not has_return:
-                    logger.warning(f"Room {room_id} -> {target_id} lacks return connection")
-
-        logger.info("World validation complete")
 
     def get_room(self, room_id: str) -> Optional[Room]:
         """Get a room by its ID."""
@@ -325,10 +131,52 @@ class World:
     def debug_world_state(self):
         """Print debug information about the world state."""
         logger.info("=== World State ===")
+        logger.info(f"Total rooms loaded: {len(self.rooms)}")
         for room_id, room in self.rooms.items():
             logger.info(f"{room.name} ({room_id}):")
             logger.info(f"  Exits: {room.get_exit_list()}")
             logger.info(f"  Players: {len(room.players)}")
+
+    def reload_rooms(self) -> bool:
+        """Reload rooms from YAML files (development feature).
+
+        Returns:
+            True if reload was successful, False otherwise
+        """
+
+        try:
+            from room_loader import RoomLoader
+
+            # Preserve current player positions
+            player_positions = {}
+            for room_id, room in self.rooms.items():
+                if room.players:
+                    player_positions[room_id] = room.players.copy()
+
+            # Load fresh room data
+            loader = RoomLoader("data/rooms")
+            new_rooms = loader.reload_rooms()
+
+            if new_rooms:
+                # Update rooms
+                self.rooms = new_rooms
+
+                # Restore player positions
+                for room_id, players in player_positions.items():
+                    if room_id in self.rooms:
+                        self.rooms[room_id].players = players
+                    else:
+                        logger.warning(f"Room {room_id} no longer exists after reload")
+
+                logger.info(f"Successfully reloaded {len(self.rooms)} rooms")
+                return True
+            else:
+                logger.error("Failed to reload rooms")
+                return False
+
+        except Exception as e:
+            logger.error(f"Error reloading rooms: {e}")
+            return False
 
 
 # Global world instance

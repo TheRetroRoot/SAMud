@@ -22,7 +22,7 @@ DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 # Game Configuration
 IDLE_TIMEOUT = int(os.getenv('IDLE_TIMEOUT', 1800))  # 30 minutes in seconds
 IDLE_WARNING_TIME = IDLE_TIMEOUT - 300  # Warn 5 minutes before timeout
-DEFAULT_ROOM = 'alamo_plaza'
+# DEFAULT_ROOM is now configured in data/rooms/zones.yml
 MAX_MESSAGE_LENGTH = 250
 MAX_INPUT_LENGTH = 1024
 MIN_USERNAME_LENGTH = 3
@@ -38,16 +38,7 @@ TELNET_DONT = bytes([254])
 TELNET_ECHO = bytes([1])
 TELNET_SGA = bytes([3])  # Suppress Go Ahead
 
-# Room IDs - used throughout the application
-ROOM_IDS = {
-    'alamo_plaza': 'The Alamo Plaza',
-    'river_walk_north': 'River Walk North',
-    'river_walk_south': 'River Walk South',
-    'pearl': 'The Pearl',
-    'tower': 'Tower of the Americas',
-    'mission': 'Mission San Jose',
-    'southtown': 'Southtown'
-}
+# Room IDs are now loaded from YAML files in data/rooms/
 
 # Command List - all available commands
 COMMANDS = {
