@@ -1,0 +1,68 @@
+# Boat Captain NPC - Located on River Walk
+npc:
+  id: boat_captain
+  name: Captain Rodriguez
+  description: A weathered man in a river boat captain's uniform with golden buttons, standing at the helm of a colorful tour barge
+  personality: jovial, storyteller, experienced, theatrical
+
+  dialogue:
+    greeting_new: "Ahoy there! Captain Rodriguez at your service! Ready for a river adventure?"
+    greeting_return: "Ahoy, {player}! Back for another voyage on our beautiful river?"
+    farewell: "Fair winds and calm waters to you!"
+    player_arrival: "Welcome aboard... well, welcome to the dock!"
+    player_departure: "Smooth sailing, friend!"
+
+  keywords:
+    hello|hi|captain|ahoy: "Ahoy! I've been navigating these waters for twenty years!"
+    boat|barge|ride|tour: "River boat tours depart every 20 minutes! See the city from water level!"
+    river|water|walk: "The San Antonio River was rerouted in the 1920s to create this urban oasis."
+    story|history|tell: "Every bend in this river has a story! From floods to fiestas, I know them all!"
+    flood|1921: "The Great Flood of 1921 killed 50 people. That tragedy led to creating the River Walk we love today."
+    architect|hugman: "Robert Hugman designed the River Walk in 1929. They called him the 'Father of the River Walk'!"
+    cypress|trees: "These bald cypress trees are over 100 years old! They've seen it all."
+    restaurant|eat|food: "Casa Rio started it all in 1946 - first restaurant on the river! Still serving great food."
+    wedding|proposal|romantic: "I've seen hundreds of proposals on my boats! This river brings out romance."
+    fish|wildlife|birds: "We have turtles, fish, and even herons! The river is alive with nature."
+    depth|deep|shallow: "Only about 3-4 feet deep! You could stand up if you fell in - but please don't!"
+    bridge|bridges: "Twenty-one bridges cross the River Walk downtown. Each one unique!"
+    fiesta|party|celebration: "During Fiesta, we have floating parades! The river becomes a party!"
+
+  movement:
+    allowed_rooms:
+      - river_walk_north
+      - river_walk_south
+    tick_interval: 240  # 4 minutes
+    movement_probability: 0.3
+    schedule:
+      morning: river_walk_north
+      afternoon: river_walk_south
+      evening: river_walk_north
+      night: river_walk_north
+    departure_message: "Captain Rodriguez starts his engine and pilots the barge {destination}."
+    arrival_message: "A tour barge arrives with Captain Rodriguez at the helm."
+
+  ambient_actions:
+    - "adjusts his captain's hat against the sun"
+    - "checks his watch and the tour schedule"
+    - "polishes the brass fittings on the barge"
+    - "waves to passing river boats"
+    - "tells a joke to nearby tourists"
+    - "points out architectural features along the river"
+    - "tests the boat's PA system with a tap"
+    - "coils a rope with practiced efficiency"
+    - "studies a river map marked with tour stops"
+    - "feeds breadcrumbs to the river ducks"
+
+  memory:
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+    memory_duration: 30
+
+  context:
+    time_aware: true
+    crowd_aware: true
+    crowd_reactions:
+      empty: "practices his tour narration to the empty river"
+      few: "shares personal river stories in a conversational tone"
+      many: "projects his voice like a seasoned tour guide"

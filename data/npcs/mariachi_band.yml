@@ -1,0 +1,67 @@
+# Mariachi Band NPC - Travels between River Walk locations
+npc:
+  id: mariachi_band
+  name: Mariachi Los Gallos
+  description: A vibrant five-piece mariachi band in traditional charro outfits with silver buttons, wide-brimmed sombreros, and well-worn instruments
+  personality: lively, musical, traditional
+
+  dialogue:
+    greeting_new: "¡Hola, amigo! Welcome to San Antonio! Any song requests?"
+    greeting_return: "¡Ay, {player}! Good to see you again, my friend!"
+    farewell: "¡Hasta la vista! May your day be filled with music!"
+    player_arrival: "¡Bienvenidos! Welcome!"
+    player_departure: "¡Adiós, amigo!"
+
+  keywords:
+    hello|hi|hola: "¡Hola! We are Mariachi Los Gallos, at your service!"
+    music|song|play|sing: "We know all the classics! 'Cielito Lindo,' 'La Bamba,' 'El Rey'... any requests?"
+    cielito|lindo: "¡Ay, ay, ay, ay! Canta y no llores..."
+    bamba|la bamba: "Para bailar la bamba, se necesita una poca de gracia!"
+    mariachi|band: "We've been playing together for fifteen years, bringing joy to the River Walk!"
+    mexico|mexican: "We play traditional Mexican music, passed down through generations!"
+    tip|money|pay: "Tips are always appreciated, amigo, but we play for the love of music!"
+    fiesta|party|celebration: "Every day is a fiesta on the River Walk! ¡Órale!"
+    taco|food|eat: "The best tacos? Try the Pearl Brewery food hall, amigo!"
+    river|walk|riverwalk: "The River Walk is our stage, the city is our audience!"
+    guitar|trumpet|violin: "Each instrument tells its own story in the mariachi ensemble!"
+    wedding|birthday|anniversary: "We play for all celebrations! Life is meant to be celebrated with music!"
+
+  movement:
+    allowed_rooms:
+      - river_walk_north
+      - river_walk_south
+      - pearl
+    tick_interval: 180  # 3 minutes
+    movement_probability: 0.4
+    schedule:
+      morning: pearl
+      afternoon: river_walk_north
+      evening: river_walk_south
+      night: river_walk_north
+    departure_message: "Mariachi Los Gallos packs up their instruments and heads {destination}."
+    arrival_message: "Mariachi Los Gallos arrives, tuning their instruments."
+
+  ambient_actions:
+    - "strums a classical guitar melody"
+    - "polishes the brass buttons on their charro jacket"
+    - "adjusts their sombrero against the sun"
+    - "begins playing 'Cielito Lindo' with passion"
+    - "tunes their guitarrón with practiced ease"
+    - "raises their trumpet for a solo"
+    - "harmonizes on a traditional ballad"
+    - "takes a bow after finishing a song"
+    - "counts off '¡Uno, dos, tres!' before starting a new tune"
+
+  memory:
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+    memory_duration: 30
+
+  context:
+    time_aware: true
+    crowd_aware: true
+    crowd_reactions:
+      empty: "practices a new arrangement quietly"
+      few: "plays an intimate serenade"
+      many: "performs with extra enthusiasm for the crowd"

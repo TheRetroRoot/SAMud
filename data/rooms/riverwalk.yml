@@ -15,6 +15,9 @@ rooms:
       west: alamo_plaza
       south: river_walk_south
       north: pearl
+    npcs:
+      - boat_captain
+      - mariachi_band
 
   river_walk_south:
     name: River Walk South
@@ -26,3 +29,4 @@ rooms:
       north: river_walk_north
       east: tower
       west: southtown
+    npcs: []  # NPCs may move here but none spawn here initially

@@ -1,0 +1,56 @@
+# Tour Guide NPC - Located at Tower of the Americas
+npc:
+  id: tour_guide
+  name: James the Tower Guide
+  description: A tall man in a crisp uniform with a Tower of the Americas logo, holding a laser pointer and wearing a headset
+  personality: informative, professional, proud of the city
+
+  dialogue:
+    greeting_new: "Welcome to the Tower of the Americas! I'm James, here to share the best views in Texas!"
+    greeting_return: "Welcome back, {player}! Ready for another breathtaking view?"
+    farewell: "Thanks for visiting! Don't forget to check out the restaurant!"
+    player_arrival: "Welcome to 750 feet above San Antonio!"
+    player_departure: "Thanks for visiting the Tower!"
+
+  keywords:
+    hello|hi|welcome: "Welcome to the Tower of the Americas, built for the 1968 World's Fair!"
+    height|tall|high: "We're 750 feet tall - that's 229 meters! The tallest observation tower in Texas!"
+    view|see|look: "On a clear day, you can see for miles in every direction. The Alamo is northeast, downtown surrounds us!"
+    hemisfair|fair|1968: "HemisFair '68 was San Antonio's World's Fair. This tower is its lasting legacy!"
+    restaurant|eat|food: "Chart House restaurant at the top rotates once every hour. Dinner with a view!"
+    elevator|ride|up: "The elevator ride takes just 43 seconds to reach the observation deck!"
+    downtown|city: "Downtown San Antonio spreads below us. You can see the River Walk winding through!"
+    alamo|mission: "The Alamo is about a mile northeast. Look for the limestone walls among the modern buildings."
+    observation|deck: "The observation deck has both indoor and outdoor viewing areas, plus telescopes!"
+    history|built|construction: "Construction took 18 months. The tower has withstood hurricanes and remains an icon!"
+    sunset|sunrise|time: "Sunset is spectacular from up here. The whole city turns golden!"
+    photo|picture|camera: "The best photos are from the outdoor deck. The indoor area has great displays too!"
+
+  movement:
+    allowed_rooms:
+      - tower
+    # Tower guide stays at their post
+
+  ambient_actions:
+    - "points out landmarks with his laser pointer"
+    - "adjusts the telescope for a visitor"
+    - "checks his watch and announces the next elevator"
+    - "polishes the information plaques"
+    - "speaks into his headset to coordinate with ground level"
+    - "points toward downtown with a sweeping gesture"
+    - "cleans a telescope lens with a special cloth"
+    - "updates the visibility distance on the information board"
+
+  memory:
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+    memory_duration: 30
+
+  context:
+    time_aware: true
+    crowd_aware: true
+    crowd_reactions:
+      empty: "gazes out at the city view thoughtfully"
+      few: "provides personalized attention to each visitor"
+      many: "uses his speaker system to address the crowd"

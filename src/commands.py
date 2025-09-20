@@ -1,5 +1,6 @@
 """Commands module for SAMUD - handles command parsing and execution."""
 
+import asyncio
 import logging
 import re
 from typing import Dict, Callable, Optional, List, TYPE_CHECKING
@@ -154,14 +155,29 @@ class CommandProcessor:
         await client.send(f"{room.description}\n")
         await client.send(f"Exits: {room.get_exit_list()}\n")
 
+        # Show NPCs in room
+        from npcs import npc_manager
+        npcs = npc_manager.get_npcs_in_room(room.id)
+        if npcs:
+            await client.send("\n")
+            if len(npcs) == 1:
+                npc = npcs[0]
+                await client.send(f"{npc.description}\n")
+            else:
+                await client.send("You see:\n")
+                for npc in npcs:
+                    await client.send(f"  - {npc.description}\n")
+
         # Show other players in room
         players = player_manager.get_players_in_room(room.id)
         other_players = [p for p in players if p.id != player.id]
         if other_players:
             names = [p.username for p in other_players]
-            await client.send(f"Players here: {', '.join(names)}\n")
+            await client.send(f"\nPlayers here: {', '.join(names)}\n")
+        elif not npcs:
+            await client.send("\nYou are alone here.\n")
         else:
-            await client.send("You are alone here.\n")
+            await client.send("\nNo other players here.\n")
 
     async def cmd_move(self, client: 'Client', args: str):
         """Move in a specified direction."""
@@ -272,6 +288,14 @@ class CommandProcessor:
 
         # Send to room
         await broadcast_room_message(player.current_room_id, player.username, message)
+
+        # Check for NPC responses (run in background)
+        from npcs import npc_manager
+        asyncio.create_task(
+            npc_manager.process_room_message(
+                player.current_room_id, player.username, message
+            )
+        )
 
     async def cmd_shout(self, client: 'Client', args: str):
         """Shout to all players."""

@@ -14,6 +14,9 @@ rooms:
     exits:
       east: river_walk_north
       south: mission
+    npcs:
+      - tourist_guide
+      - photographer
 
   mission:
     name: Mission San Jose
@@ -23,3 +26,5 @@ rooms:
     ascii_art_file: mission.txt
     exits:
       north: alamo_plaza
+    npcs:
+      - priest

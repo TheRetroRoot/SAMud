@@ -24,6 +24,7 @@ class RoomLoader:
         self.zones: Dict[str, dict] = {}
         self.rooms: Dict[str, Room] = {}
         self.connections: List[dict] = []
+        self.room_npcs: Dict[str, List[str]] = {}  # room_id -> list of npc_ids
         self.starting_room: str = 'alamo_plaza'  # Default, will be overridden from YAML
 
     def load_all_rooms(self) -> Dict[str, Room]:
@@ -143,6 +144,11 @@ class RoomLoader:
                         'to_room': target_id
                     })
 
+            # Store NPC spawn information
+            if 'npcs' in room_data and isinstance(room_data['npcs'], list):
+                self.room_npcs[room_id] = room_data['npcs']
+                logger.debug(f"Room '{room_id}' spawns NPCs: {room_data['npcs']}")
+
             logger.debug(f"Loaded room '{room_id}' in zone '{zone_id}'")
 
         except Exception as e:
@@ -260,6 +266,7 @@ class RoomLoader:
         self.zones.clear()
         self.rooms.clear()
         self.connections.clear()
+        self.room_npcs.clear()
 
         # Load fresh data
         new_rooms = self.load_all_rooms()
@@ -272,3 +279,11 @@ class RoomLoader:
                 logger.warning(f"Room {room_id} no longer exists, players displaced")
 
         return new_rooms
+
+    def get_room_npcs(self) -> Dict[str, List[str]]:
+        """Get NPC spawn information for all rooms.
+
+        Returns:
+            Dictionary mapping room IDs to lists of NPC IDs
+        """
+        return self.room_npcs.copy()

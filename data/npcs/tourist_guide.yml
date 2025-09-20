@@ -1,0 +1,52 @@
+# Tourist Guide NPC - Located at the Alamo Plaza
+npc:
+  id: tourist_guide
+  name: Sarah the Tour Guide
+  description: A friendly tour guide in khaki shorts and a blue polo shirt, holding a clipboard and wearing a name badge
+  personality: enthusiastic, knowledgeable, helpful
+
+  dialogue:
+    greeting_new: "Welcome to the Alamo! I'm Sarah, your tour guide. Feel free to ask me anything about this historic site!"
+    greeting_return: "Oh, hello again, {player}! Back to learn more about the Alamo?"
+    farewell: "Remember the Alamo! Safe travels, friend!"
+    player_arrival: "Welcome to the Alamo Plaza!"
+    player_departure: "Y'all come back now!"
+
+  keywords:
+    hello|hi|hey: "Howdy! Welcome to the most famous site in Texas history!"
+    help|question|assist: "I'm here to help! You can ask me about the history, the battle, or get directions to other attractions."
+    history|alamo|battle: "The Battle of the Alamo took place in 1836, lasting 13 days. Though the defenders lost, their sacrifice inspired Texas to win independence!"
+    davy|crockett|bowie: "Davy Crockett, Jim Bowie, and William B. Travis were among the famous defenders who gave their lives here."
+    remember: "Remember the Alamo! That became the rallying cry for Texas independence."
+    directions|where|location: "From here you can head east to the River Walk, or south to Mission San Jose. The Pearl is north along the river."
+    photo|picture|camera: "This is a great spot for photos! The facade looks best in morning light."
+    texas|independence: "Texas gained independence from Mexico just six weeks after the fall of the Alamo, at the Battle of San Jacinto."
+    mission|spanish: "The Alamo was originally Mission San Antonio de Valero, founded in 1718 by Spanish missionaries."
+
+  movement:
+    allowed_rooms:
+      - alamo_plaza
+    # Tourist guide doesn't move - stays at their post
+
+  ambient_actions:
+    - "points to the limestone facade while explaining its history"
+    - "shows a historical photo to a group of tourists"
+    - "adjusts her name badge"
+    - "checks her clipboard and makes a note"
+    - "takes a sip from her water bottle"
+    - "gestures toward the mission walls"
+    - "answers a tourist's question with enthusiasm"
+
+  memory:
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+    memory_duration: 30
+
+  context:
+    time_aware: true
+    crowd_aware: true
+    crowd_reactions:
+      empty: "looks around for tourists to guide"
+      few: "smiles warmly at the small group"
+      many: "raises her voice to address the large crowd"

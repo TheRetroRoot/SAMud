@@ -18,6 +18,7 @@ class Room:
     ascii_art: str = ""  # ASCII art for the room
     exits: Dict[str, str] = field(default_factory=dict)  # direction -> room_id
     players: Set[int] = field(default_factory=set)  # Set of player IDs in room
+    npcs: Set[str] = field(default_factory=set)  # Set of NPC IDs in room
 
     def get_exit_list(self) -> str:
         """Get formatted string of available exits."""
@@ -38,6 +39,51 @@ class Room:
     def get_player_count(self) -> int:
         """Get the number of players in this room."""
         return len(self.players)
+
+    def add_npc(self, npc_id: str):
+        """Add an NPC to this room."""
+        self.npcs.add(npc_id)
+        logger.debug(f"NPC {npc_id} entered {self.name}")
+
+    def remove_npc(self, npc_id: str):
+        """Remove an NPC from this room."""
+        self.npcs.discard(npc_id)
+        logger.debug(f"NPC {npc_id} left {self.name}")
+
+    def get_npc_count(self) -> int:
+        """Get the number of NPCs in this room."""
+        return len(self.npcs)
+
+    def get_total_occupants(self) -> int:
+        """Get total number of players and NPCs in room."""
+        return len(self.players) + len(self.npcs)
+
+    def is_full(self, max_occupants: int = 20) -> bool:
+        """Check if room has reached capacity.
+
+        Args:
+            max_occupants: Maximum allowed occupants (players + NPCs)
+
+        Returns:
+            True if room is at capacity
+        """
+        return self.get_total_occupants() >= max_occupants
+
+    def can_enter(self, is_npc: bool = False, max_occupants: int = 20) -> bool:
+        """Check if an entity can enter this room.
+
+        Args:
+            is_npc: True if checking for an NPC
+            max_occupants: Maximum allowed occupants
+
+        Returns:
+            True if entity can enter
+        """
+        # NPCs don't count toward player-only limits
+        if is_npc:
+            return self.get_total_occupants() < max_occupants
+        # Players have priority over NPCs for space
+        return len(self.players) < max_occupants
 
 
 class World:

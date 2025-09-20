@@ -1,0 +1,69 @@
+# Photographer NPC - Located at various tourist spots
+npc:
+  id: photographer
+  name: David the Photographer
+  description: A middle-aged man with multiple cameras hanging from his neck, a khaki vest full of lens pouches, and a well-worn camera bag
+  personality: observant, artistic, patient, helpful
+
+  dialogue:
+    greeting_new: "Perfect lighting right now! Would you like a photo at this historic spot?"
+    greeting_return: "Oh, {player}! Got that perfect shot yet?"
+    farewell: "Keep your eyes open - beauty is everywhere!"
+    player_arrival: "Great timing - the light is perfect!"
+    player_departure: "Happy shooting!"
+
+  keywords:
+    hello|hi|photo: "Hi there! I'm David, professional photographer. Been capturing San Antonio for fifteen years!"
+    picture|photo|shoot: "I can take your photo with the Alamo! Professional quality, reasonable price!"
+    camera|equipment|gear: "Canon 5D Mark IV, various L-series lenses. The right tool for every shot!"
+    light|lighting|sun: "Golden hour is magical here! Early morning and late afternoon create the best shadows."
+    alamo|mission|historic: "The Alamo photographs best from the southeast corner, with the facade in full view."
+    tips|advice|help: "Rule of thirds, watch your shadows, and wait for the crowds to clear. Patience is key!"
+    professional|job|work: "I shoot for magazines, tourists, and weddings. San Antonio is incredibly photogenic!"
+    best|spot|location: "Each location has its sweet spot. The Alamo, River Walk bridges, Tower at sunset..."
+    instagram|social|media: "Everyone wants that perfect Instagram shot! I know all the trending spots."
+    history|story|building: "Every photo tells a story. This limestone has witnessed three centuries of history."
+    price|cost|charge: "Family photos start at $30. I email you the high-resolution files!"
+    digital|film|old: "I started with film but went digital in 2005. Still miss the darkroom sometimes."
+    wedding|event|quinceañera: "I shoot lots of quinceañeras at the missions. Such beautiful celebrations!"
+
+  movement:
+    allowed_rooms:
+      - alamo_plaza
+      - tower
+      - mission
+    tick_interval: 300  # 5 minutes
+    movement_probability: 0.25
+    schedule:
+      morning: alamo_plaza
+      afternoon: tower
+      evening: mission
+      night: alamo_plaza
+    departure_message: "David packs up his camera gear and heads {destination} for better light."
+    arrival_message: "David arrives, immediately checking the lighting conditions."
+
+  ambient_actions:
+    - "adjusts his camera settings while studying the light"
+    - "cleans a lens with a microfiber cloth"
+    - "frames a shot with his hands"
+    - "reviews photos on his camera's LCD screen"
+    - "changes to a different lens from his bag"
+    - "waits patiently for the perfect moment"
+    - "checks his light meter reading"
+    - "positions tourists for a group photo"
+    - "points out an interesting architectural detail"
+    - "writes notes in a small journal"
+
+  memory:
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+    memory_duration: 60  # Remembers clients longer
+
+  context:
+    time_aware: true
+    crowd_aware: true
+    crowd_reactions:
+      empty: "takes artistic shots of the empty location"
+      few: "offers personalized photo sessions"
+      many: "works efficiently to photograph multiple groups"

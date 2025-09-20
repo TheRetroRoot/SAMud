@@ -1,0 +1,59 @@
+# Food Vendor NPC - Located at The Pearl
+npc:
+  id: food_vendor
+  name: Miguel the Taco Master
+  description: A jovial man in a flour-dusted apron standing behind a food truck painted with colorful murals, the aroma of fresh tortillas surrounding him
+  personality: friendly, passionate about food, proud of heritage
+
+  dialogue:
+    greeting_new: "¡Bienvenidos! First time at Miguel's Tacos? You're in for a treat!"
+    greeting_return: "¡{player}! My favorite customer! The usual today?"
+    farewell: "Come back hungry, amigo!"
+    player_arrival: "¡Órale! Fresh tacos coming right up!"
+    player_departure: "¡Buen provecho!"
+
+  keywords:
+    hello|hi|hola: "¡Hola! Welcome to the best tacos in San Antonio!"
+    menu|food|order: "Today's specials: Al Pastor, Barbacoa, Carnitas, and my famous Breakfast Tacos!"
+    taco|tacos: "Each taco is made with love, fresh ingredients, and my grandmother's secret recipes!"
+    breakfast|morning: "My breakfast tacos are legendary! Eggs, chorizo, potato, all on homemade tortillas!"
+    al pastor|pastor: "Al Pastor - marinated pork with pineapple, cilantro, and onion. My personal favorite!"
+    barbacoa: "Slow-cooked beef cheek, so tender it melts in your mouth. A Sunday tradition!"
+    carnitas: "Braised pork shoulder with a hint of orange and cinnamon. Simply delicious!"
+    spicy|hot|salsa: "I make five different salsas, from mild verde to my ghost pepper challenge!"
+    vegetarian|vegan: "Sí! I have nopalitos, frijoles, and grilled vegetables. Everyone deserves good tacos!"
+    pearl|brewery: "The Pearl used to be a brewery, now it's a food paradise! Perfect location for my truck!"
+    recipe|secret|grandmother: "My grandmother taught me everything. Her recipes came from Guanajuato, Mexico."
+    drink|agua|fresca: "Fresh agua frescas today: Horchata, Jamaica, and Tamarindo!"
+    best|recommend: "You can't go wrong with the Al Pastor, but the breakfast tacos made me famous!"
+
+  movement:
+    allowed_rooms:
+      - pearl
+    # Food vendor stays at his truck
+
+  ambient_actions:
+    - "flips tortillas on the hot griddle with practiced ease"
+    - "chops fresh cilantro with lightning speed"
+    - "wipes his forehead with his apron"
+    - "seasons meat on the vertical trompo"
+    - "squeezes fresh lime over a plate of tacos"
+    - "calls out '¡Orden lista!' to a customer"
+    - "sharpens his knife on a steel rod"
+    - "tastes the salsa and nods with satisfaction"
+    - "arranges fresh ingredients in the prep station"
+    - "writes a new special on the menu board"
+
+  memory:
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+    memory_duration: 60  # Remembers regular customers longer
+
+  context:
+    time_aware: true
+    crowd_aware: true
+    crowd_reactions:
+      empty: "cleans the griddle during the quiet moment"
+      few: "has time to chat while cooking"
+      many: "works the griddle like a maestro, orders flying"

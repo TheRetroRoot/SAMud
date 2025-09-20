@@ -47,3 +47,33 @@ CREATE TABLE IF NOT EXISTS player_stats (
 
     FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
 );
+
+-- NPC state table - stores NPC locations and state data
+CREATE TABLE IF NOT EXISTS npc_state (
+    npc_id TEXT PRIMARY KEY,
+    current_room TEXT NOT NULL,
+    last_moved TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    state_data TEXT,  -- JSON for flexible state storage
+
+    -- Ensure NPC IDs are unique
+    CONSTRAINT npc_id_unique UNIQUE (npc_id)
+);
+
+-- Index on current_room for efficient room occupancy queries
+CREATE INDEX IF NOT EXISTS idx_npc_room ON npc_state(current_room);
+
+-- NPC memory table - tracks player interactions with NPCs
+CREATE TABLE IF NOT EXISTS npc_memory (
+    npc_id TEXT NOT NULL,
+    player_name TEXT NOT NULL,
+    last_interaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    interaction_count INTEGER DEFAULT 1,
+    memory_data TEXT,  -- JSON for flexible memory storage
+
+    PRIMARY KEY (npc_id, player_name)
+);
+
+-- Index for efficient NPC memory lookups
+CREATE INDEX IF NOT EXISTS idx_npc_memory_npc ON npc_memory(npc_id);
+CREATE INDEX IF NOT EXISTS idx_npc_memory_player ON npc_memory(player_name);
+CREATE INDEX IF NOT EXISTS idx_npc_memory_time ON npc_memory(last_interaction);

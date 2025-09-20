@@ -13,6 +13,8 @@ rooms:
     ascii_art_file: pearl.txt
     exits:
       south: river_walk_north
+    npcs:
+      - food_vendor
 
   tower:
     name: Tower of the Americas
@@ -22,6 +24,8 @@ rooms:
     ascii_art_file: tower.txt
     exits:
       west: river_walk_south
+    npcs:
+      - tour_guide
 
   southtown:
     name: Southtown
@@ -31,3 +35,5 @@ rooms:
     ascii_art_file: southtown.txt
     exits:
       east: river_walk_south
+    npcs:
+      - artist

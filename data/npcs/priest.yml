@@ -1,0 +1,57 @@
+# Priest NPC - Located at Mission San Jose
+npc:
+  id: priest
+  name: Father Martinez
+  description: An elderly priest in traditional brown Franciscan robes with a rope belt, a wooden cross hanging from his neck, his face weathered but kind
+  personality: wise, peaceful, spiritual, welcoming
+
+  dialogue:
+    greeting_new: "Welcome to Mission San Jose, my child. May you find peace within these walls."
+    greeting_return: "Blessings, {player}. It's good to see you return to this sacred place."
+    farewell: "Go with God, my child. May peace be with you."
+    player_arrival: "Welcome to God's house."
+    player_departure: "Vaya con Dios."
+
+  keywords:
+    hello|hi|father: "Peace be with you, my child. How may I serve you today?"
+    bless|blessing: "May the Lord bless you and keep you, may His face shine upon you."
+    mission|church|san jose: "Mission San Jose, the 'Queen of Missions,' was founded in 1720 to spread Christianity to the native peoples."
+    history|spanish|founded: "Spanish missionaries built five missions along the San Antonio River. This is the largest."
+    pray|prayer|god: "These walls have heard countless prayers over three centuries. Yours are always welcome."
+    help|guidance|advice: "Sometimes we find answers not in words, but in quiet contemplation. The chapel is always open."
+    rose|window: "Ah, Rosa's Window! Legend says a mason carved it for his lost love. It remains our most beautiful feature."
+    native|indian|indigenous: "The Coahuiltecan people lived here, learned trades, and some found faith. Their story is complex."
+    franciscan|monk|friar: "We Franciscans have served here since the beginning, following St. Francis's example of simple living."
+    peace|quiet|meditation: "In our busy world, this mission offers a sanctuary of peace. You're welcome to sit and reflect."
+    wedding|marriage|ceremony: "Many couples marry here. The mission has blessed unions for 300 years."
+    confession|forgive|sin: "The confessional is available, though I sense you seek historical knowledge more than absolution today."
+
+  movement:
+    allowed_rooms:
+      - mission
+    # Priest stays at the mission
+
+  ambient_actions:
+    - "adjusts his simple rope belt thoughtfully"
+    - "runs his fingers along worn prayer beads"
+    - "lights a votive candle with steady hands"
+    - "opens an ancient leather-bound Bible"
+    - "gazes up at the rose window with appreciation"
+    - "sweeps dust from the chapel steps"
+    - "tends to the mission garden herbs"
+    - "rings the mission bell for evening prayer"
+    - "kneels briefly at the altar in prayer"
+
+  memory:
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+    memory_duration: 90  # Priest has good memory for his flock
+
+  context:
+    time_aware: true
+    crowd_aware: true
+    crowd_reactions:
+      empty: "prays quietly in the peaceful solitude"
+      few: "speaks in soft, contemplative tones"
+      many: "raises his voice slightly to address all visitors"

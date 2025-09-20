@@ -13,6 +13,9 @@ from config import (
     IDLE_TIMEOUT, IDLE_WARNING_TIME
 )
 from database import db
+from npc_loader import npc_loader
+from tick_scheduler import tick_scheduler
+from npcs import npc_manager
 
 logger = logging.getLogger(__name__)
 
@@ -182,11 +185,45 @@ class MudServer:
         self.active_players: Dict[int, Client] = {}  # player_id -> Client
         self.running = False
 
+    async def _initialize_npcs(self):
+        """Initialize NPC system."""
+        from world import world
+        from room_loader import RoomLoader
+
+        # Load room NPCs configuration
+        room_loader = RoomLoader()
+        room_loader.load_all_rooms()  # This loads room configurations
+        room_npcs = room_loader.get_room_npcs()
+
+        # Pass room NPCs to NPC loader
+        npc_loader.room_npcs = room_npcs
+
+        # Load and initialize NPCs
+        num_npcs = await npc_loader.initialize_npcs()
+        logger.info(f"Loaded {num_npcs} NPCs")
+
+        # Register NPCs with tick scheduler for movement and ambient actions
+        for npc_id, npc in npc_manager.npcs.items():
+            if npc.movement and 'tick_interval' in npc.movement:
+                tick_interval = npc.movement['tick_interval']
+                await tick_scheduler.register_npc_movement(npc_id, tick_interval)
+
+            if npc.ambient_actions:
+                await tick_scheduler.register_npc_ambient(npc_id)
+
+        # Start the tick scheduler
+        await tick_scheduler.start()
+        logger.info("Tick scheduler started for NPC behaviors")
+
     async def start_server(self):
         """Start the telnet server."""
         # Initialize database
         logger.info("Initializing database...")
         await db.init_database()
+
+        # Initialize NPCs
+        logger.info("Loading NPCs...")
+        await self._initialize_npcs()
 
         # Start telnetlib3 server
         self.running = True
@@ -220,10 +257,19 @@ class MudServer:
         """Graceful shutdown of the server."""
         self.running = False
 
+        # Stop tick scheduler
+        await tick_scheduler.stop()
+
+        # Save NPC states
+        await npc_manager.save_all_states()
+
         # Notify all clients
         for client in list(self.clients.values()):
             await client.send("\n[System] Server is shutting down. Goodbye!\n")
             await client.disconnect()
+
+        # Cleanup NPC manager
+        npc_manager.shutdown()
 
         logger.info("Server shutdown complete")
         sys.exit(0)

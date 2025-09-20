@@ -1,0 +1,101 @@
+# NPC Configuration Schema Template
+# This file documents the structure for NPC YAML configurations
+# Copy this template when creating new NPCs
+
+npc:
+  # Required: Unique identifier for the NPC (use snake_case)
+  id: example_npc
+
+  # Required: Display name shown to players
+  name: Example NPC Name
+
+  # Required: Description shown when players look at the room
+  description: A detailed description of the NPC's appearance
+
+  # Optional: Personality traits for role-playing consistency
+  personality: friendly, helpful, knowledgeable
+
+  # Dialogue configuration
+  dialogue:
+    # Greeting for first-time encounters
+    greeting_new: "Hello there, stranger! Welcome to our city!"
+
+    # Greeting for returning players (can use {player} placeholder)
+    greeting_return: "Good to see you again, {player}!"
+
+    # Farewell message when NPC leaves
+    farewell: "I must be going now. Farewell!"
+
+    # Optional: Response when players leave the room
+    player_departure: "Safe travels!"
+
+    # Optional: Response when players enter the room
+    player_arrival: "Welcome, traveler!"
+
+  # Keyword-based responses (use pipe | for multiple triggers)
+  keywords:
+    # Format: "keyword1|keyword2|keyword3": "Response message"
+    hello|hi|greetings: "Hello there! How can I help you?"
+    help|question|assist: "I'm here to help! What do you need to know?"
+    bye|goodbye|farewell: "Farewell, friend! Come back anytime."
+    # Add more keyword patterns as needed
+
+  # Movement configuration
+  movement:
+    # List of room IDs this NPC can visit
+    allowed_rooms:
+      - room_id_1
+      - room_id_2
+      - room_id_3
+
+    # Time in seconds between movement checks
+    tick_interval: 120
+
+    # Optional: Probability of moving when tick fires (0.0-1.0)
+    movement_probability: 0.3
+
+    # Optional: Schedule-based locations
+    schedule:
+      morning: room_id_1    # 6am-12pm
+      afternoon: room_id_2  # 12pm-6pm
+      evening: room_id_3    # 6pm-12am
+      night: room_id_1      # 12am-6am
+
+    # Optional: Custom movement messages
+    departure_message: "The {npc_name} heads off to {destination}."
+    arrival_message: "The {npc_name} arrives from {origin}."
+
+  # Ambient actions (randomly performed when players are present)
+  ambient_actions:
+    - "looks around thoughtfully"
+    - "adjusts their clothing"
+    - "hums a quiet tune"
+    - "checks the time"
+    # Add more ambient actions
+
+  # Optional: Memory settings
+  memory:
+    # What to remember about players
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+
+    # How long to remember (days)
+    memory_duration: 30
+
+  # Optional: Contextual behaviors
+  context:
+    # React to time of day
+    time_aware: true
+
+    # React to weather (if implemented)
+    weather_aware: false
+
+    # React to number of players in room
+    crowd_aware: true
+
+    # Different behavior based on player count
+    crowd_reactions:
+      empty: "looks a bit lonely"
+      few: "seems content with the company"
+      many: "appears overwhelmed by the crowd"

@@ -1,0 +1,59 @@
+# Artist NPC - Located in Southtown
+npc:
+  id: artist
+  name: Luna the Street Artist
+  description: A young woman with paint-splattered jeans and a vintage band t-shirt, her hands stained with various colors, working on a large mural
+  personality: creative, passionate, bohemian, socially conscious
+
+  dialogue:
+    greeting_new: "Oh hey! Welcome to Southtown's art district! Don't mind the paint..."
+    greeting_return: "Hey {player}! Back to check on the mural's progress?"
+    farewell: "Keep creating, keep questioning! Art is everywhere!"
+    player_arrival: "Welcome to where art lives!"
+    player_departure: "Stay creative!"
+
+  keywords:
+    hello|hi|hey: "Hey there! I'm Luna. Just adding some finishing touches to this piece."
+    art|mural|paint: "This mural tells the story of San Antonio's diverse communities. Every color has meaning!"
+    southtown|south town: "Southtown is the soul of San Antonio's art scene. Galleries, studios, and creative energy everywhere!"
+    gallery|galleries|show: "Blue Star Arts Complex is just down the street. First Friday art walks are amazing!"
+    graffiti|street art: "Street art gives voice to the community. These walls speak truth to power!"
+    artist|creative|create: "I've been painting since I could hold a brush. The streets became my canvas in college."
+    king william|historic|houses: "King William district has those gorgeous historic homes. Great contrast with our modern art!"
+    music|band|concert: "The venues here host incredible local bands. Art and music flow together in Southtown."
+    culture|community|diverse: "San Antonio's culture is so rich - Mexican, Texan, military, indigenous - it all inspires my work."
+    sell|buy|commission: "I do commissions! But this wall? This is for the community, not for sale."
+    technique|spray|brush: "I use everything - spray cans, brushes, even my hands. The art chooses its tools."
+    meaning|message|story: "Every piece tells a story. This one's about gentrification and preserving community roots."
+    coffee|drink|cafe: "Halcyon coffee shop is my second home. Best cortado and they showcase local art!"
+
+  movement:
+    allowed_rooms:
+      - southtown
+    # Artist stays working on her mural
+
+  ambient_actions:
+    - "steps back to examine her work critically"
+    - "mixes colors on a makeshift palette"
+    - "spray paints a detailed section with precision"
+    - "takes a photo of her progress with her phone"
+    - "wipes paint from her hands on her jeans"
+    - "sketches in a worn notebook"
+    - "drinks from a paint-stained coffee cup"
+    - "adds intricate details with a fine brush"
+    - "cleans a spray can nozzle"
+    - "nods her head to music from her earbuds"
+
+  memory:
+    remember_names: true
+    remember_topics: true
+    remember_visit_count: true
+    memory_duration: 45
+
+  context:
+    time_aware: true
+    crowd_aware: true
+    crowd_reactions:
+      empty: "loses herself completely in the creative process"
+      few: "explains her technique while working"
+      many: "turns it into an impromptu art demonstration"

@@ -1,6 +1,7 @@
 """Database module for SAMUD - async SQLite interface and player data access."""
 
 import aiosqlite
+import json
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -218,6 +219,157 @@ class Database:
             )
             row = await cursor.fetchone()
             return row['count'] > 0 if row else False
+
+    # === NPC Database Methods ===
+
+    async def save_npc_state(self, npc_id: str, current_room: str,
+                            last_moved: datetime, state_data: Dict[str, Any]):
+        """Save or update NPC state.
+
+        Args:
+            npc_id: NPC identifier
+            current_room: Current room ID
+            last_moved: Last movement timestamp
+            state_data: Additional state data
+        """
+        async with self.get_connection() as conn:
+            state_json = json.dumps(state_data) if state_data else None
+
+            await conn.execute("""
+                INSERT INTO npc_state (npc_id, current_room, last_moved, state_data)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(npc_id) DO UPDATE SET
+                    current_room = excluded.current_room,
+                    last_moved = excluded.last_moved,
+                    state_data = excluded.state_data
+            """, (npc_id, current_room, last_moved, state_json))
+
+            await conn.commit()
+            logger.debug(f"Saved state for NPC {npc_id}")
+
+    async def load_npc_state(self, npc_id: str) -> Optional[Dict[str, Any]]:
+        """Load NPC state from database.
+
+        Args:
+            npc_id: NPC to load
+
+        Returns:
+            Dictionary with NPC state or None if not found
+        """
+        async with self.get_connection() as conn:
+            cursor = await conn.execute(
+                "SELECT current_room, last_moved, state_data FROM npc_state WHERE npc_id = ?",
+                (npc_id,)
+            )
+            row = await cursor.fetchone()
+
+            if row:
+                return {
+                    'current_room': row['current_room'],
+                    'last_moved': row['last_moved'],
+                    'state_data': json.loads(row['state_data']) if row['state_data'] else {}
+                }
+            return None
+
+    async def save_npc_memory(self, npc_id: str, player_name: str,
+                              interaction_count: int, memory_data: Dict[str, Any]):
+        """Save or update NPC memory of a player.
+
+        Args:
+            npc_id: NPC identifier
+            player_name: Player being remembered
+            interaction_count: Number of interactions
+            memory_data: Memory details
+        """
+        async with self.get_connection() as conn:
+            memory_json = json.dumps(memory_data) if memory_data else None
+
+            await conn.execute("""
+                INSERT INTO npc_memory (npc_id, player_name, last_interaction,
+                                      interaction_count, memory_data)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(npc_id, player_name) DO UPDATE SET
+                    last_interaction = excluded.last_interaction,
+                    interaction_count = excluded.interaction_count,
+                    memory_data = excluded.memory_data
+            """, (
+                npc_id, player_name, datetime.now(),
+                interaction_count, memory_json
+            ))
+
+            await conn.commit()
+
+    async def load_npc_memories(self, npc_id: str) -> List[Dict[str, Any]]:
+        """Load all memories for an NPC.
+
+        Args:
+            npc_id: NPC to load memories for
+
+        Returns:
+            List of memory records
+        """
+        async with self.get_connection() as conn:
+            cursor = await conn.execute("""
+                SELECT player_name, last_interaction, interaction_count, memory_data
+                FROM npc_memory
+                WHERE npc_id = ?
+                ORDER BY last_interaction DESC
+            """, (npc_id,))
+
+            rows = await cursor.fetchall()
+            memories = []
+
+            for row in rows:
+                memories.append({
+                    'player_name': row['player_name'],
+                    'last_interaction': row['last_interaction'],
+                    'interaction_count': row['interaction_count'],
+                    'memory_data': json.loads(row['memory_data']) if row['memory_data'] else {}
+                })
+
+            return memories
+
+    async def prune_old_npc_memories(self, days: int = 30):
+        """Remove NPC memories older than specified days.
+
+        Args:
+            days: Age threshold in days
+        """
+        async with self.get_connection() as conn:
+            cutoff_date = datetime.now().replace(
+                day=datetime.now().day - days if datetime.now().day > days else 1
+            )
+
+            await conn.execute("""
+                DELETE FROM npc_memory
+                WHERE last_interaction < ?
+            """, (cutoff_date,))
+
+            await conn.commit()
+            logger.info(f"Pruned NPC memories older than {days} days")
+
+    async def get_all_npc_states(self) -> List[Dict[str, Any]]:
+        """Get all NPC states from database.
+
+        Returns:
+            List of NPC state dictionaries
+        """
+        async with self.get_connection() as conn:
+            cursor = await conn.execute(
+                "SELECT npc_id, current_room, last_moved, state_data FROM npc_state"
+            )
+            rows = await cursor.fetchall()
+
+            states = []
+            for row in rows:
+                states.append({
+                    'npc_id': row['npc_id'],
+                    'current_room': row['current_room'],
+                    'last_moved': row['last_moved'],
+                    'state_data': json.loads(row['state_data']) if row['state_data'] else {}
+                })
+
+            return states
 
 
 # Global database instance
