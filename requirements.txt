@@ -1,0 +1,8 @@
+# Core dependencies for SAMUD
+aiosqlite==0.20.0      # Async SQLite database interface
+bcrypt==4.2.0          # Password hashing
+python-dotenv==1.0.1   # Environment variable management
+
+# Development dependencies
+pytest==8.3.3          # Testing framework
+pytest-asyncio==0.24.0 # Async test support
