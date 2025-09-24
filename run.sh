@@ -13,6 +13,24 @@ echo -e "${GREEN}         San Antonio MUD (SAMUD) Server Launcher${NC}"
 echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
 
+# Check for help flag
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    echo -e "${BLUE}Usage:${NC}"
+    echo -e "  ./run.sh                    ${YELLOW}# Start the MUD server${NC}"
+    echo -e "  ./run.sh --auto-restart     ${YELLOW}# Start with auto-restart on crash${NC}"
+    echo -e "  ./run.sh config             ${YELLOW}# Launch the configuration tool${NC}"
+    echo -e "  ./run.sh --help             ${YELLOW}# Show this help message${NC}"
+    echo ""
+    echo -e "${BLUE}Server:${NC}"
+    echo -e "  The MUD server runs on port 2323 by default."
+    echo -e "  Connect using: telnet localhost 2323"
+    echo ""
+    echo -e "${BLUE}Config Tool:${NC}"
+    echo -e "  Visual editor for rooms and NPCs."
+    echo -e "  Requires Tkinter (python3-tk on most systems)."
+    exit 0
+fi
+
 # Check Python version
 echo -e "${BLUE}Checking Python version...${NC}"
 python_version=$(python3 --version 2>&1 | grep -oE '[0-9]+\.[0-9]+')
@@ -49,6 +67,28 @@ fi
 # Create data directory if it doesn't exist
 mkdir -p data
 echo -e "${GREEN}✓ Data directory ready${NC}"
+
+# Check if running config tool
+if [ "$1" = "config" ] || [ "$1" = "--config" ]; then
+    echo -e "\n${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}    SAMUD Configuration Tool${NC}"
+    echo -e "${GREEN}    Visual editor for rooms and NPCs${NC}"
+    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}\n"
+
+    # Check for tkinter
+    python3 -c "import tkinter" 2>/dev/null
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Error: Tkinter is not installed${NC}"
+        echo -e "${YELLOW}Please install python3-tk for your system:${NC}"
+        echo -e "  Ubuntu/Debian: sudo apt-get install python3-tk"
+        echo -e "  Fedora: sudo dnf install python3-tkinter"
+        echo -e "  macOS/Windows: Should be included with Python"
+        exit 1
+    fi
+
+    python3 config_tool.py
+    exit 0
+fi
 
 # Optional: Run with restart on crash
 if [ "$1" = "--auto-restart" ]; then

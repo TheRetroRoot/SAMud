@@ -39,14 +39,34 @@ Each room should have a short description and at least one exit leading to anoth
 
 ---
 
+## Configuration Tool
+
+SAMUD includes a graphical configuration tool for managing rooms and NPCs:
+
+```bash
+# Launch the configuration tool
+./run.sh config
+
+# Or directly
+python3 config_tool.py
+```
+
+**Features:**
+- Visual room graph with drag-and-drop
+- Complete NPC editor with dialogue, movement, and memory settings
+- Validation system to check for errors
+- Automatic backups when saving
+
+See [CONFIG_TOOL_README.md](CONFIG_TOOL_README.md) for detailed documentation.
+
 ## Stretch Goals
 
-1. **NPCs (Non-Player Characters)**  
-   - Create simple NPCs that live in certain rooms  
-   - NPCs can respond to keywords (e.g. an NPC at The Pearl might talk about tacos if you mention tacos)  
+1. **NPCs (Non-Player Characters)**  ✓ COMPLETED
+   - Create simple NPCs that live in certain rooms
+   - NPCs can respond to keywords (e.g. an NPC at The Pearl might talk about tacos if you mention tacos)
 
-2. **NPC Interactions**  
-   - Allow `talk <npc>` for basic dialogue  
+2. **NPC Interactions**  ✓ COMPLETED
+   - Allow `talk <npc>` for basic dialogue
    - Support simple scripted responses or branching text  
 
 3. **Tick System**  
